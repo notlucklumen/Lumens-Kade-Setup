@@ -4,5 +4,5 @@
   <h2>A repository to help low IQ people setup Kade Engine and create their own mods the <i>old way</i></h2>
   <p>Uh, honestly, nothing to say here :3, to launch, load the .bat file only for Windows!</p>
   <p>love u window..</p>
-  <img src="https://cdn-icons-png.flaticon.com/512/32/32684.png">
+  <img height="100" src="https://cdn-icons-png.flaticon.com/512/32/32684.png">
 </div>
