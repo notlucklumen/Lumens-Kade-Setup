@@ -99,6 +99,7 @@ set "BF=Enter to launch"
 call :banner
 set "X="
 set /p "X="
+if not "%X%"=="" goto :loader
 echo Checking for changes...
 call :findgame
 if not defined GAME goto :ldbuild
@@ -112,7 +113,7 @@ if errorlevel 1 set "MSG=Build failed or Setup has not been run. Copy the error 
 if errorlevel 1 goto :err
 :ldgo
 start "" /d "%BIN%" "%GAME%"
-exit /b
+goto :loader
 :err
 echo.
 echo %MSG%
