@@ -1,6 +1,6 @@
 @echo off
 setlocal
-title Kade Engine 1.4
+title Kade Loader
 set "SELF=%~f0"
 fltmc >nul 2>&1
 if not errorlevel 1 goto :admin
@@ -11,30 +11,66 @@ exit /b
 :admin
 set "PATH=C:\HaxeToolkit\haxe;C:\HaxeToolkit\neko;C:\Program Files\Git\cmd;%PATH%"
 set "HAXEPATH=C:\HaxeToolkit\haxe"
-set "KADE=C:\KadeEngine\Kade-Engine-1.4-KE\"
-:menu
 cls
 set "BW=KADE LOADER"
 set "BC=10,130,110,255,40,150"
-set "BF=[1] Download Kade 1.4;[2] Run Kade 1.4"
+set "BF=Kade Engine 1.2"
 call :banner
-set "X="
-set /p "X=> "
-if "%X%"=="1" goto :setup
-if "%X%"=="2" goto :run
-goto :menu
-:setup
+echo.
+echo KADE ENGINE LOADER
+echo.
+echo  1. Download / install Kade Engine 1.2
+echo  2. Run your current version
+echo.
+choice /c 12 /n /m "Select an option [1-2]: "
+if errorlevel 2 goto :run_current
+if errorlevel 1 goto :install12
+
+:install12
 cls
+call :banner
+echo.
 echo [1/6] Checking Git...
 where git >nul 2>&1
 if not errorlevel 1 goto :gitok
 winget --version >nul 2>&1
-if errorlevel 1 set "MSG=winget is not available. Install Git from git-scm.com, then try again."
-if errorlevel 1 goto :err
+if errorlevel 1 set "MSG=winget is not available. Install Git from git-scm.com, then run this again."
+if errorlevel 1 goto :run_current
+cls
+echo RUNNING CURRENT VERSION
+echo.
+
+rem Look for an already-built Kade executable beside this loader.
+set "CURRENT_DIR=%~dp0"
+set "GAME="
+set "BIN=%CURRENT_DIR%export\debug\windows\bin"
+for %%F in ("%BIN%\*.exe") do if not defined GAME set "GAME=%%~fF"
+
+if not defined GAME (
+    echo No built game was found in:
+    echo %BIN%
+    echo.
+    echo Put this loader in the root of your current Kade Engine
+    echo project, or build your current version first.
+    echo.
+    pause
+    exit /b
+)
+
+echo Launching:
+echo %GAME%
+echo.
+start /wait "" "%GAME%"
+echo.
+echo The game closed with exit code %ERRORLEVEL%.
+pause
+exit /b
+
+:err
 echo Installing Git...
 winget install --id Git.Git -e --silent --accept-package-agreements --accept-source-agreements
 where git >nul 2>&1
-if errorlevel 1 set "MSG=Git install failed. Install Git from git-scm.com, then try again."
+if errorlevel 1 set "MSG=Git install failed. Install Git from git-scm.com, then run this again."
 if errorlevel 1 goto :err
 :gitok
 echo [2/6] Checking Haxe...
@@ -44,19 +80,21 @@ echo Installing Haxe 4.2.5...
 powershell -NoProfile -Command "$ProgressPreference='SilentlyContinue'; [Net.ServicePointManager]::SecurityProtocol='Tls12'; Invoke-WebRequest 'https://github.com/HaxeFoundation/haxe/releases/download/4.2.5/haxe-4.2.5-win.exe' -OutFile ($env:TEMP+'\haxe-setup.exe') -UseBasicParsing"
 start /wait "" "%TEMP%\haxe-setup.exe" /S /D=C:\HaxeToolkit\haxe
 where haxe >nul 2>&1
-if errorlevel 1 set "MSG=Haxe install failed. Install Haxe 4.2.5 from haxe.org, then try again."
+if errorlevel 1 set "MSG=Haxe install failed. Install Haxe 4.2.5 from haxe.org, then run this again."
 if errorlevel 1 goto :err
 :haxeok
+set "KADE=C:\KadeEngine\Kade-Engine-1.2-KE\"
 if exist "%KADE%Project.xml" goto :havesrc
-echo [3/6] Downloading Kade Engine 1.4...
+echo [3/6] Downloading Kade Engine 1.2...
 if not exist "C:\KadeEngine" mkdir "C:\KadeEngine"
-powershell -NoProfile -Command "$ProgressPreference='SilentlyContinue'; [Net.ServicePointManager]::SecurityProtocol='Tls12'; $z='C:\KadeEngine\kade.zip'; Invoke-WebRequest 'https://github.com/KadeArchive/Kade-Engine/archive/refs/tags/1.4-KE.zip' -OutFile $z -UseBasicParsing; Expand-Archive -LiteralPath $z -DestinationPath 'C:\KadeEngine' -Force; Remove-Item $z"
-if not exist "%KADE%Project.xml" set "MSG=Could not download Kade Engine 1.4. Check your internet connection and try again."
+powershell -NoProfile -Command "$ProgressPreference='SilentlyContinue'; [Net.ServicePointManager]::SecurityProtocol='Tls12'; $z='C:\KadeEngine\kade.zip'; Invoke-WebRequest 'https://github.com/KadeArchive/Kade-Engine/archive/refs/tags/1.2-KE.zip' -OutFile $z -UseBasicParsing; Expand-Archive -LiteralPath $z -DestinationPath 'C:\KadeEngine' -Force; Remove-Item $z"
+if not exist "%KADE%Project.xml" set "MSG=Could not download Kade Engine 1.2. Check your internet connection and run this again."
 if not exist "%KADE%Project.xml" goto :err
 :havesrc
 cd /d "%KADE%"
 powershell -NoProfile -Command "Get-ChildItem source -Recurse -Filter *.hx | ForEach-Object { $c=[IO.File]::ReadAllText($_.FullName); $n=[regex]::Replace($c,'(?m)^(\s*)(polymod\.Polymod\.init\([^\r\n]*\);)[ \t]*$','$1//$2'); if($n -ne $c){[IO.File]::WriteAllText($_.FullName,$n)} }"
-echo [4/6] Installing libraries in their own folder, your other Kade builds are not touched...
+if exist ".kade_ok" goto :check
+echo [4/6] Installing the old libraries in their own folder, your other Kade build is not touched...
 if not exist "C:\HaxeToolkit\haxe\lib" mkdir "C:\HaxeToolkit\haxe\lib"
 haxelib setup "C:\HaxeToolkit\haxe\lib"
 if not exist ".haxelib" haxelib newrepo
@@ -66,35 +104,27 @@ echo [5/6] Checking Visual Studio C++ tools...
 call :findvs
 if defined VSPATH goto :vsok
 winget --version >nul 2>&1
-if errorlevel 1 set "MSG=winget is not available. Install Build Tools for Visual Studio 2022 with Desktop development with C++, then try again."
+if errorlevel 1 set "MSG=winget is not available. Install Build Tools for Visual Studio 2022 with Desktop development with C++, then run this again."
 if errorlevel 1 goto :err
 powershell -NoProfile -Command "if((Get-PSDrive C).Free -lt 9GB){exit 1}"
-if errorlevel 1 set "MSG=Not enough free space on C:. Free up at least 10 GB, then try again."
+if errorlevel 1 set "MSG=Not enough free space on C:. Free up at least 10 GB, then run this again."
 if errorlevel 1 goto :err
 echo Installing Visual Studio 2022 Build Tools. This can take 10 to 30 minutes...
 winget install --id Microsoft.VisualStudio.2022.BuildTools -e --accept-package-agreements --accept-source-agreements --override "--quiet --wait --norestart --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows11SDK.22621"
 call :findvs
-if not defined VSPATH set "MSG=Visual Studio tools were not detected. Restart your PC and try again."
+if not defined VSPATH set "MSG=Visual Studio tools were not detected. Restart your PC and run this again."
 if not defined VSPATH goto :err
 :vsok
 call "%VSPATH%\VC\Auxiliary\Build\vcvars64.bat" >nul
 echo Building native libraries...
 for %%L in (extension-webm linc_luajit discord_rpc) do if exist ".haxelib\%%L" call haxelib run lime rebuild %%L windows
-echo [6/6] Building Kade Engine 1.4. The first build takes a long time, let it run...
+echo [6/6] Building Kade Engine 1.2. The first build takes a long time, let it run...
 call :compile
 if errorlevel 1 set "MSG=Build failed. Copy the error text above and send it for help."
 if errorlevel 1 goto :err
 echo ok> ".kade_ok"
-echo.
-echo Kade 1.4 is ready. Choose 2 on the menu to run it.
-pause
-goto :menu
-:run
-if not exist "%KADE%Project.xml" set "MSG=Kade 1.4 is not downloaded yet. Choose 1 first."
-if not exist "%KADE%Project.xml" goto :err
-cd /d "%KADE%"
-if not exist ".kade_ok" set "MSG=Setup is not finished. Choose 1 first."
-if not exist ".kade_ok" goto :err
+goto :launch
+:check
 echo Checking for changes...
 call :findgame
 if not defined GAME goto :build
@@ -112,12 +142,12 @@ start /wait "" /d "%BIN%" "%GAME%"
 echo.
 echo The game closed with exit code %ERRORLEVEL%.
 pause
-goto :menu
+exit /b
 :err
 echo.
 echo %MSG%
 pause
-goto :menu
+exit /b
 :banner
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$t=[IO.File]::ReadAllText('%SELF%'); Invoke-Expression $t.Substring($t.IndexOf('#'+'#PS#'+'#'))"
 exit /b
