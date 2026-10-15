@@ -5,11 +5,16 @@
 
   <br>
 
-  <h2>Instructions</h2>
+  <div align='left'>
+    <h2>Instructions</h2>
   <p>
-    Download the Lumens KE.bat file from the src folder or in Release
+    1. Download the Lumens KE.bat file from the src folder or in Release
   </p>
-  <p>Once downloaded, run the .bat and it should install haxe, flixel, and other important things to run Kade Engine</p>
+  <p>1. Once downloaded, run the .bat and it should install haxe, flixel, and other important things to run Kade Engine</p>
+  </div>
+  
+  <br>
+
   <b><p>(NOTE: Beware! This'll only download Kade Engine 1.2, if you want newer versions, you can modify the source file, but just know that you'll have to also manually modify other things so that specific version can work.)</p></b>
 
   <br>
