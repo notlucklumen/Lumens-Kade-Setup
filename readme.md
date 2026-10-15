@@ -7,11 +7,10 @@
 
   <h2>Instructions</h2>
   <p>
-    Download the Lumens KE.bat file. Python might be required!
+    Download the Lumens KE.bat file from the src folder or in Release
   </p>
+  <p>Once downloaded, run the .bat and it should install haxe, flixel, and other important things to run Kade Engine</p>
+  <b><p>(NOTE: Beware! This'll only download Kade Engine 1.2, if you want newer versions, you can modify the source file, but just know that you'll have to also manually modify other things so that specific version can work.)</p></b>
 
   <br>
-  
-  <p>love u window..</p>
-  <img height="100" src="https://cdn-icons-png.flaticon.com/512/32/32684.png">
 </div>
