@@ -1,5 +1,5 @@
 <div align="center">
-  <img height="250" src="https://static.wikia.nocookie.net/fridaynightfunking/images/6/63/2KadeEngineLogo.png/revision/latest?cb=20210726182641">
+  <img height="190" src="https://static.wikia.nocookie.net/fridaynightfunking/images/6/63/2KadeEngineLogo.png/revision/latest?cb=20210726182641"> <img height='190' src='https://raw.githubusercontent.com/notlucklumen/Lumens-Kade-Setup/refs/heads/main/src/assets/loominEngine.png'>
   <h1>Lumen KE</h2>
   <h2>A repository to help people setup Kade Engine and create their own mods the <i>old way</i></h2>
 
